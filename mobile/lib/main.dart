@@ -70,7 +70,7 @@ class _OrganiserScreenState extends State<OrganiserScreen> {
   Timer? _timer;
   
   // Replace with local machine or server IPv4 address
-  final String backendStartUrl = "http://192.168.1.15:8000/api/sessions/start";
+  final String backendStartUrl = "http://10.107.215.158:8000/api/sessions/start";
   
   String sessionId = "";
   String secretKey = "";
