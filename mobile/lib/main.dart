@@ -168,7 +168,7 @@ class _StudentScreenState extends State<StudentScreen> {
   final String studentId = "STU123"; 
   
   // Replace with local machine or server IPv4 address
-  final String backendUrl = "http://192.168.1.15:8000/api/attendance/mark"; 
+  final String backendUrl = "http://10.107.215.158:8000/api/attendance/mark"; 
 
   Future<void> scanAndMark() async {
     setState(() => status = "Scanning for classroom...");
