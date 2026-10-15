@@ -17,14 +17,42 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Make Gradlew Executable
-        run: chmod +x gradlew || true
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Locate and Build APK
+        run: |
+          echo "Current directory contents:"
+          ls -la
+
+          # Search for gradlew anywhere in the repository
+          GRADLEW_PATH=$(find . -name "gradlew" -not -path "*/.*" | head -n 1)
+
+          if [ -n "$GRADLEW_PATH" ]; then
+            TARGET_DIR=$(dirname "$GRADLEW_PATH")
+            echo "Found gradlew in: $TARGET_DIR"
+            cd "$TARGET_DIR"
+            chmod +x gradlew
+            ./gradlew assembleDebug --stacktrace
+          elif [ -f "pubspec.yaml" ]; then
+            echo "Error: Detected Flutter project! Flutter action is required."
+            exit 1
+          else
+            echo "No gradlew found. Searching for build.gradle..."
+            BUILD_GRADLE=$(find . -name "build.gradle" -o -name "build.gradle.kts" | head -n 1)
+            if [ -n "$BUILD_GRADLE" ]; then
+              TARGET_DIR=$(dirname "$BUILD_GRADLE")
+              echo "Found build.gradle in: $TARGET_DIR. Building with system gradle..."
+              cd "$TARGET_DIR"
+              gradle assembleDebug
+            else
+              echo "Error: No Android project files found."
+              exit 1
+            fi
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: '**/*.apk'
